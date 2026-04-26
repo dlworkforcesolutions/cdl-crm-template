@@ -27,16 +27,21 @@ function App() {
     alert("Check your email to confirm signup");
   }
 
-  async function signIn() {
-    const { data } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+async function signIn() {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    setUser(data.user);
+  if (error) {
+    alert(error.message);
+    return;
+  }
 
-    if (data.user) {
-      fetchContacts(data.user.id);
+  setUser(data.user);
+
+  if (data.user) {
+    fetchContacts(data.user.id);
     }
   }
 
