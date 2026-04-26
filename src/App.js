@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from "react";
-import { supabase } from "./supabaseClient";
 
 const PIPELINE_STAGES = ["New Lead", "Contacted", "Qualified", "Docs Sent", "Placed", "Inactive"];
 
@@ -117,9 +116,6 @@ const blankDriver = () => ({
 });
 
 export default function CRM() {
-  const [user, setUser] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [drivers, setDrivers] = useState(() => {
   const savedDrivers = localStorage.getItem("cdlCrmDrivers");
 
@@ -134,14 +130,6 @@ export default function CRM() {
 
   return MOCK_DRIVERS;
 });
-useEffect(() => {
-  async function checkUser() {
-    const { data } = await supabase.auth.getUser();
-    setUser(data.user);
-  }
-
-  checkUser();
-}, []);
 useEffect(() => {
   localStorage.setItem("cdlCrmDrivers", JSON.stringify(drivers));
 }, [drivers]);
@@ -351,62 +339,7 @@ const deleteDriver = (driverId) => {
     notify(`Sent to ${count} driver${count !== 1 ? "s" : ""}!`);
     setBulkSelected([]); setComposeSubject(""); setComposeBody("");
   };
-async function signUp() {
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
 
-  if (error) {
-    alert(error.message);
-  } else {
-    alert("Check your email to confirm signup");
-  }
-}
-
-async function signIn() {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  setUser(data.user);
-}
-
-async function signOut() {
-  await supabase.auth.signOut();
-  setUser(null);
-}
-if (!user) {
-  return (
-    <div style={{ padding: 40 }}>
-      <h2>Login</h2>
-
-      <input
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <br /><br />
-
-      <input
-        placeholder="Password"
-        type="password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <br /><br />
-
-      <button onClick={signIn}>Sign In</button>
-      <button onClick={signUp}>Sign Up</button>
-    </div>
-  );
-}
   return (
     <div style={{ display: "flex", height: "100vh", fontFamily: "'DM Sans', sans-serif", background: "#0f1117", color: "#e2e8f0", overflow: "hidden" }}>
       <style>{`
@@ -448,31 +381,9 @@ if (!user) {
       {/* Sidebar */}
       <div style={{ width: sidebarOpen ? 220 : 0, background: "#13151f", borderRight: "1px solid #2d3248", display: "flex", flexDirection: "column", padding: sidebarOpen ? "24px 12px" : 0, overflow: "hidden", transition: "width 0.3s, padding 0.3s", flexShrink: 0 }}>
         <div style={{ marginBottom: 32 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-  <div>
-    <div style={{
-      fontFamily: "Barlow Condensed, sans-serif",
-      fontSize: 22,
-      fontWeight: 700,
-      color: "#f97316",
-      letterSpacing: "0.05em",
-      whiteSpace: "nowrap"
-    }}>
-      CDL CRM
-    </div>
-
-    <div style={{
-      fontSize: 11,
-      color: "#475569",
-      fontWeight: 500,
-      whiteSpace: "nowrap"
-    }}>
-      Driver Management
-    </div>
-  </div>
-
-  <button onClick={signOut}>Logout</button>
-</div>
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 22, fontWeight: 700, color: "#f97316", letterSpacing: "0.05em", whiteSpace: "nowrap" }}>CDL CRM</div>
+          <div style={{ fontSize: 11, color: "#475569", fontWeight: 500, whiteSpace: "nowrap" }}>Driver Management</div>
+        </div>
         {[
           { key: "contacts", icon: "👥", label: "Contacts" },
           { key: "pipeline", icon: "📊", label: "Pipeline" },
